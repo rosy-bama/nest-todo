@@ -1,19 +1,28 @@
 import { Injectable } from '@nestjs/common';
+import { TodoHelper } from 'src/helpers/todos.helper';
+import { Todo } from 'src/interfaces/todo.interface';
 import { CreateTodoDto } from '../dto/create-todo.dto';
 import { UpdateTodoDto } from '../dto/update-todo.dto';
 
 @Injectable()
 export class TodosService {
-  create(createTodoDto: CreateTodoDto) {
-    return 'This action adds a new todo';
+  constructor(private readonly todoHelper: TodoHelper){}
+
+  
+  async create(createTodoDto: CreateTodoDto){
+    return await this.todoHelper.createTodo(createTodoDto);
   }
 
-  findAll() {
-    return `This action returns all todos`;
+  async findAll(): Promise<Todo[]> {
+    return await this.todoHelper.getAllTodos();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`;
+  async findOneById(id: number): Promise<Todo> {
+    return await this.todoHelper.getOneById(id);
+  }
+
+  async findOneByTitle(title: string): Promise<Todo> {
+    return await this.todoHelper.getOneByTitle(title);
   }
 
   update(id: number, updateTodoDto: UpdateTodoDto) {
