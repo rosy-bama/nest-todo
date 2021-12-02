@@ -19,11 +19,9 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
-  // @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  async findOne(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<User|object> {
-    console.log("HUIIIIiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-    
+  @UseGuards(JwtAuthGuard)
+  @Get(':uuid')
+  async findOne(@Param('uuid') uuid: string): Promise<User|object> {
     return await this.usersService.findOne(uuid);
   }
 

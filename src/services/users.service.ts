@@ -36,10 +36,7 @@ export class UsersService {
   }
 
   async findOne(uuid: string): Promise<User | object>  {
-    const user = await this.userHelper.getOneById(uuid);
-
-    console.log(user,"*******************************************************");
-    
+    const user = await this.userHelper.getOneById(uuid);    
     
     if(user){
       return user
