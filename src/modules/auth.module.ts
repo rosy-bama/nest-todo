@@ -2,12 +2,11 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from 'src/controllers/auth.controller';
 import { LocalStrategy } from 'src/guards/local.strategy';
-import { UsersHelper } from 'src/helpers/users.helper';
-import { PrismaService } from 'src/services/prisma.service';
 import { AuthService } from '../services/auth.service';
 import { UsersModule } from './users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/enums/constants';
+import { JwtStrategy } from 'src/guards/jwt.strategy';
 
 @Module({
   imports: [
@@ -21,7 +20,7 @@ import { jwtConstants } from 'src/enums/constants';
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}
