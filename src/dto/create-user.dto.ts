@@ -1,6 +1,11 @@
-import { IsAlpha, IsAlphanumeric, IsEmail, IsNotEmpty, minLength } from "class-validator";
+import { IsAlpha, IsAlphanumeric, IsEmail, IsOptional, IsUUID } from "class-validator";
 
 export class CreateUserDto {
+
+    @IsOptional()
+    @IsUUID()
+    publicId: string;
+
     @IsAlpha()
     firstname: string;
     

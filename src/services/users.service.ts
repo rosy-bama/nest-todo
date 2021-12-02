@@ -2,21 +2,25 @@ import * as bcrypt from 'bcrypt';
 import { User } from '.prisma/client';
 import { Injectable } from '@nestjs/common';
 import { isEmail } from 'class-validator';
-import { UserHelper } from 'src/helpers/users.helper';
+import { UsersHelper } from 'src/helpers/users.helper';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdatePasswordDto, UpdateUserDto } from '../dto/update-user.dto';
 import { Constants } from 'src/enums/constants.enum';
 import { hashPassword } from 'src/helpers/password.helper';
+import { use } from 'passport';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userHelper: UserHelper){}
-
+  constructor(private readonly userHelper: UsersHelper){}
 
   async create(createUserDto: CreateUserDto) {
     const pwdHash = await hashPassword(createUserDto.password);
     createUserDto.password = pwdHash;
-    const {password, ...user} = await this.userHelper.createUser(createUserDto);
+
+    createUserDto.publicId = randomUUID();    
+
+    const {id, password, ...user} = await this.userHelper.createUser(createUserDto);
 
     return user;
   }
@@ -28,31 +32,27 @@ export class UsersService {
     if(users[0]){
       return users;
     }
-
     return {"Message": "No user exist in the database"}
-    
   }
 
-  async findOne(id: number): Promise<User | object>  {
-    const user = await this.userHelper.getOneById(id);
+  async findOne(uuid: string): Promise<User | object>  {
+    const user = await this.userHelper.getOneById(uuid);
     
     if(user){
       return user
     }
-        
     return {"Message": "User Not Found"};
   }
 
   async findbyUsername(username): Promise<User[] | object>{
     if(isEmail(username)){
       const user = await this.userHelper.getByEmail(username);
-
       if (user){
         return user;
       }
       return {"Message" : "User Not Found"};
     }
-    const user = await this. userHelper.getByUsername(username);
+    const user = await this.userHelper.getByUsername(username);
     if (user){ // Code refactoring needed to avoid repetition
       return user;
     }
@@ -60,8 +60,8 @@ export class UsersService {
   }
 
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User | object> {
-    return await this.userHelper.updateUser(id, updateUserDto);
+  async update(uuid: string, updateUserDto: UpdateUserDto): Promise<User | object> {
+    return await this.userHelper.updateUser(uuid, updateUserDto);
   }
 
   async resetPassword(id: number, payload: UpdatePasswordDto): Promise<User|object>{
@@ -80,7 +80,7 @@ export class UsersService {
   }
 
 
-  remove(id: number) {
-    return this.userHelper.deleteUser(id);
+  async remove(id: number) {
+    return await this.userHelper.deleteUser(id);
   }
 }

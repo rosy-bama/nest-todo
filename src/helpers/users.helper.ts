@@ -6,7 +6,7 @@ import { PrismaService } from "../services/prisma.service";
 
 
 @Injectable()
-export class UserHelper {
+export class UsersHelper {
     constructor(private readonly prismaService: PrismaService){}
 
 
@@ -25,10 +25,10 @@ export class UserHelper {
         return users;
     }
 
-    async getOneById(id): Promise<User> {
+    async getOneById(id: any): Promise<User> {
         const user = await this.prismaService.user.findUnique({
             where: {
-                id : id
+                publicId : id
             }
         });
         
@@ -57,7 +57,7 @@ export class UserHelper {
     }
 
     async getByEmail(email: string): Promise<User>{
-        const user = this.prismaService.user.findUnique({
+        const user = await this.prismaService.user.findUnique({
             where: {
                 email: email
             }
@@ -68,8 +68,8 @@ export class UserHelper {
         return user;
     }
 
-    async updateUser(id: number, data: UpdateUserDto): Promise<User|object>{
-        const user = this.prismaService.user.findUnique({
+    async updateUser(uuid: string, data: UpdateUserDto): Promise<User|object>{
+        const user = await this.prismaService.user.findUnique({
             where: {
                 email: data.email
             }
@@ -77,9 +77,9 @@ export class UserHelper {
         if (user){
             return {"Message" : "Email already in Use"}
         }
-        return this.prismaService.user.update({
+        return await this.prismaService.user.update({
             data: data,
-            where: { id: id}
+            where: { publicId: uuid}
         });
     }
 
@@ -91,11 +91,19 @@ export class UserHelper {
     }
 
     async deleteUser(id:number): Promise<User>{
-    return this.prismaService.user.delete({
-        where: {
-            id: id
-        }
-    })
+        return await this.prismaService.user.delete({
+            where: {
+                id: id
+            }
+        });
     }
 
+    async isExisting(email: string): Promise<boolean>{
+        const user = await this.getByEmail(email);
+             
+        if(user){
+            return true;
+        }
+        return false;
+    }
 }
